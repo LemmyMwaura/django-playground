@@ -1,19 +1,20 @@
-from rest_framework import generics, authentication, permissions
-from products.models import Product
-from products.serializers import ProductSerializer
-
+# third party libs
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import generics, permissions
 
+# django
 from django.shortcuts import get_object_or_404
 
-from products.permissions import IsStaffEditorPermissions
-# Create your views here.
+# local
+from .models import Product
+from .serializers import ProductSerializer
+from .permissions import IsStaffEditorPermissions
 
+# Create your views here.
 class ProductListCreateAPIView(generics.ListCreateAPIView):
   queryset = Product.objects.all()
   serializer_class = ProductSerializer
-  authentication_classes = [authentication.SessionAuthentication]
   permission_classes = [permissions.IsAdminUser, IsStaffEditorPermissions]
 
   def perform_create(self, serializer):
@@ -48,7 +49,7 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
   def perform_update(self, serializer):
     instance = serializer.save()
     if not instance.content:
-      instance.content = instance.title
+      instance.content = f'{instance.title}\'s mock content'
 
 product_update_view = ProductUpdateAPIView.as_view()
 

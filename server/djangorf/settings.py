@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'products.apps.ProductsConfig',
     'rest_framework',
+    'rest_framework.authtoken',
     "corsheaders",
 ]
 
@@ -58,6 +59,16 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'djangorf.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ]
+}
 
 TEMPLATES = [
     {
