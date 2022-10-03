@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, authentication, permissions
 from products.models import Product
 from products.serializers import ProductSerializer
 
@@ -6,11 +6,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from django.shortcuts import get_object_or_404
+
+from products.permissions import IsStaffEditorPermissions
 # Create your views here.
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
   queryset = Product.objects.all()
   serializer_class = ProductSerializer
+  authentication_classes = [authentication.SessionAuthentication]
+  permission_classes = [permissions.IsAdminUser, IsStaffEditorPermissions]
 
   def perform_create(self, serializer):
     title = serializer.validated_data.get('title') 
@@ -51,9 +55,17 @@ product_update_view = ProductUpdateAPIView.as_view()
 class ProductDeleteAPIView(generics.DestroyAPIView):
   queryset = Product.objects.all()
   serializer_class = ProductSerializer
+  lookup_field = "pk"
+
+  def perform_destroy(self, instance):
+    #instance
+    super().perform_destroy(instance)
 
 product_delete_view = ProductDeleteAPIView.as_view()
 
+
+
+# functional views
 @api_view(['GET','POST'])
 def product_alt_view(request, pk=None, *args, **kwargs):
   # list, create and detail view
