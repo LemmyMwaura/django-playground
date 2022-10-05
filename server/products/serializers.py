@@ -22,6 +22,10 @@ class ProductSerializer(serializers.ModelSerializer):
       'get_discount'
     ]
 
+  def create(self, validated_data):
+    validated_data.pop('email')
+    return super().create(validated_data)
+
   def get_edit_url(self, obj):
     request = self.context.get('request')
     return reverse('product-edit', request=request, kwargs={'pk': obj.pk}) if request is not None else None

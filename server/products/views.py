@@ -9,10 +9,10 @@ from django.shortcuts import get_object_or_404
 # local
 from .models import Product
 from .serializers import ProductSerializer
-from api.mixins import staffEditorPermissionMixin
+from api.mixins import staffEditorPermissionMixin, UserQuerySetMixin
 
 # Create your views here.
-class ProductListCreateAPIView(staffEditorPermissionMixin, generics.ListCreateAPIView):
+class ProductListCreateAPIView(UserQuerySetMixin, staffEditorPermissionMixin, generics.ListCreateAPIView):
   queryset = Product.objects.all()
   serializer_class = ProductSerializer
 
@@ -20,8 +20,8 @@ class ProductListCreateAPIView(staffEditorPermissionMixin, generics.ListCreateAP
     title = serializer.validated_data.get('title') 
     content = serializer.validated_data.get('content') or None
     if content is None:
-      content = title
-    serializer.save(content=content)
+      content = f'{title}\'s mock content'
+    serializer.save(user=self.request.user, content=content)
     # send a signal
     # return super().perform_create(serializer)
 
@@ -49,6 +49,7 @@ class ProductUpdateAPIView(staffEditorPermissionMixin, generics.UpdateAPIView):
     instance = serializer.save()
     if not instance.content:
       instance.content = f'{instance.title}\'s mock content'
+    instance.save()
 
 product_update_view = ProductUpdateAPIView.as_view()
 
